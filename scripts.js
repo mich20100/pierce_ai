@@ -1,9 +1,8 @@
-let apiKey = '';
-
 function setupAI() {
     const apiKeyInput = document.getElementById('api-key-input');
     apiKey = apiKeyInput.value.trim();
     if (apiKey) {
+        console.log("API Key entered: " + apiKey.substring(0, 5) + "..."); // Log first 5 characters of the key
         document.getElementById('setup-container').style.display = 'none';
         document.getElementById('chat-container').style.display = 'block';
     } else {
@@ -11,15 +10,14 @@ function setupAI() {
     }
 }
 
-const chatMessages = document.getElementById('chat-messages');
-const userInput = document.getElementById('user-input');
-
 async function sendMessage() {
     const message = userInput.value.trim();
     if (message === '') return;
 
     addMessage('You', message);
     userInput.value = '';
+
+    console.log("Sending message to OpenAI..."); // Log before API call
 
     try {
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
@@ -35,6 +33,7 @@ async function sendMessage() {
             }
         });
 
+        console.log("Received response from OpenAI"); // Log after API call
         const aiResponse = response.data.choices[0].message.content.trim();
         addMessage('Pierce AI', aiResponse);
     } catch (error) {
@@ -42,17 +41,3 @@ async function sendMessage() {
         addMessage('Pierce AI', 'Sorry, I encountered an error. Please check your API key and try again.');
     }
 }
-
-function addMessage(sender, message) {
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('message', sender === 'You' ? 'user-message' : 'ai-message');
-    messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
-    chatMessages.appendChild(messageElement);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-userInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        sendMessage();
-    }
-});
